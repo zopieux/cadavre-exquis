@@ -30,6 +30,9 @@ class Cadavre:
         self.state = None
         self.reset()
 
+    def connection_made(self):
+        self.bot.send('CAP REQ :multi-prefix')
+
     def reset(self):
         self.pending_players = set()
         self.player_pieces = {}
