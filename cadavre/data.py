@@ -37,6 +37,48 @@ LIGATURES = {
 
 
 def assemble_sentence(parts):
+    """
+    Assemble parts and try to keep it French.
+
+    >>> assemble_sentence(['meuf à', 'le voisin'])
+    'Meuf au voisin.'
+    >>> assemble_sentence(['meuf à', 'la voisine'])
+    'Meuf à la voisine.'
+    >>> assemble_sentence(['meuf à', 'les voisins'])
+    'Meuf aux voisins.'
+    >>> assemble_sentence(['meuf à', 'mes voisins'])
+    'Meuf à mes voisins.'
+    >>> assemble_sentence(['meuf de', 'le voisin'])
+    'Meuf du voisin.'
+    >>> assemble_sentence(['meuf de', 'la voisine'])
+    'Meuf de la voisine.'
+    >>> assemble_sentence(['meuf de', 'les voisins'])
+    'Meuf des voisins.'
+    >>> assemble_sentence(['meuf de', 'mon fils'])
+    'Meuf de mon fils.'
+    >>> assemble_sentence(['meuf de', 'un voisin'])
+    "Meuf d'un voisin."
+    >>> assemble_sentence(['meuf de', 'une nana'])
+    "Meuf d'une nana."
+    >>> assemble_sentence(['meuf de', 'des voisins'])
+    'Meuf des voisins.'
+    >>> assemble_sentence(['meuf que', ', en bon prince, il nique'])
+    'Meuf que, en bon prince, il nique.'
+    >>> assemble_sentence(['meuf que, moi,', ', en bon prince, je nique'])
+    'Meuf que, moi, en bon prince, je nique.'
+    >>> assemble_sentence(['meuf que', 'il nique'])
+    "Meuf qu'il nique."
+    >>> assemble_sentence(['meuf QUE', 'il nique'])
+    "Meuf QU'il nique."
+    >>> assemble_sentence(['meuf que', 'elle nique'])
+    "Meuf qu'elle nique."
+    >>> assemble_sentence(['meuf que', 'on baise'])
+    "Meuf qu'on baise."
+    >>> assemble_sentence(['meuf que', 'Aristote démonte'])
+    "Meuf qu'Aristote démonte."
+    >>> assemble_sentence(['meuf que', 'Ursule encule'])
+    "Meuf qu'Ursule encule."
+    """
     parts = parts[:]
     result = ""
 
@@ -66,26 +108,3 @@ def assemble_sentence(parts):
             result += part
 
     return result.strip() + "."
-
-
-if __name__ == '__main__':
-    a = assemble_sentence
-    assert a(['meuf à', 'le voisin']) == "Meuf au voisin."
-    assert a(['meuf à', 'la voisine']) == "Meuf à la voisine."
-    assert a(['meuf à', 'les voisins']) == "Meuf aux voisins."
-    assert a(['meuf à', 'mes voisins']) == "Meuf à mes voisins."
-    assert a(['meuf de', 'le voisin']) == "Meuf du voisin."
-    assert a(['meuf de', 'la voisine']) == "Meuf de la voisine."
-    assert a(['meuf de', 'les voisins']) == "Meuf des voisins."
-    assert a(['meuf de', 'mon fils']) == "Meuf de mon fils."
-    assert a(['meuf de', 'un voisin']) == "Meuf d'un voisin."
-    assert a(['meuf de', 'une nana']) == "Meuf d'une nana."
-    assert a(['meuf de', 'des voisins']) == "Meuf des voisins."
-    assert a(['meuf que', ', en bon prince, il nique']) == "Meuf que, en bon prince, il nique."
-    assert a(['meuf que, moi,', ', en bon prince, je nique']) == "Meuf que, moi, en bon prince, je nique."
-    assert a(['meuf que', 'il nique']) == "Meuf qu'il nique."
-    assert a(['meuf QUE', 'il nique']) == "Meuf QU'il nique."
-    assert a(['meuf que', 'elle nique']) == "Meuf qu'elle nique."
-    assert a(['meuf que', 'on baise']) == "Meuf qu'on baise."
-    assert a(['meuf que', 'Aristote démonte']) == "Meuf qu'Aristote démonte."
-    assert a(['meuf que', 'Ursule encule']) == "Meuf qu'Ursule encule."
