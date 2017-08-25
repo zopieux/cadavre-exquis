@@ -20,6 +20,11 @@ class State(enum.IntEnum):
 
 @irc3.plugin
 class Cadavre:
+    requires = [
+        'irc3.plugins.command',
+        'irc3.plugins.userlist'
+    ]
+
     @classmethod
     def reload(cls, old):
         return cls(old.bot)
