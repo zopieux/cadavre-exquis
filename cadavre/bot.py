@@ -240,11 +240,16 @@ class Cadavre:
                 plurality = subject_plurality if subject else object_plurality
                 example = examples[example_idx(gender, plurality)]
 
-            conjug = f'au {gender_name(gender)} {plurality_name(plurality)}'
-            if piece == 'V':
-                conjug = f'conjugué {conjug}, à la troisième personne'
 
-            msg = (f"donne-moi un {data.PIECES[piece]} {conjug}, "
+            tune = ''
+            if piece == 'V':
+                tune = (f' conjugué au {gender_name(gender)} à la 3è personne '
+                        f'du {plurality_name(plurality)}')
+            elif piece != 'Cc':
+                tune = (f' accordé au {gender_name(gender)} '
+                        f'{plurality_name(plurality)}')
+
+            msg = (f"donne-moi un {data.PIECES[piece]}{tune}, "
                    f"par exemple “{example}”")
             self.say(msg, to=player)
 
