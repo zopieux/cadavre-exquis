@@ -211,7 +211,8 @@ class Cadavre:
         if not missing:
             return
 
-        msg = f"on attend toujours {', '.join(missing)}"
+        delay = time.monotonic() - self.start_time
+        msg = f"après {delay:.1f} sec on attend toujours {', '.join(missing)}"
         # invoked by a player that did not answer (such troll lol)
         if nick in missing:
             msg += f" (oui, surtout toi, con de {nick})"
