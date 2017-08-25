@@ -111,7 +111,6 @@ class Cadavre:
 
         piece = self.player_pieces[mask.nick]
         already = piece in self.pieces
-        modified = already and self.pieces[piece].lower() != data.lower()
         self.pieces[piece] = data
 
         counter = f"[{len(self.pieces)}/{len(self.player_pieces)}] "
@@ -119,9 +118,6 @@ class Cadavre:
         if not already:
             delay = time.monotonic() - self.start_time
             msg = f"{mask.nick} m'a donné son fragment en {delay:.1f} sec"
-            self.say(counter + msg)
-        elif already and modified:
-            msg = f"pour info, {mask.nick} a modifié son fragment"
             self.say(counter + msg)
 
         if len(self.pieces) == len(self.player_pieces):
