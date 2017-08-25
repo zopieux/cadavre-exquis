@@ -20,8 +20,6 @@ class State(enum.IntEnum):
 
 @irc3.plugin
 class Cadavre:
-    BOLD = '\x02'
-
     @classmethod
     def reload(cls, old):
         return cls(old.bot)
@@ -274,7 +272,7 @@ class Cadavre:
         for i, (player, msg) in enumerate(zip(self.players, messages)):
             def highlight_part(phrase, index):
                 phrase = phrase[:]
-                phrase[index] = self.BOLD + phrase[index] + self.BOLD
+                phrase[index] = data.BOLD + phrase[index] + data.BOLD
                 return ' '.join(phrase)
 
             msg += highlight_part(fragments, i)
@@ -294,7 +292,10 @@ class Cadavre:
             parts = [self.pieces[piece] for piece in
                      data.MODES[len(self.pieces)]]
             self.say(f"merci à {', '.join(self.players)}:")
-            sentence = data.assemble_sentence(parts, '\x1f', '\x0f')
+            sentence = data.assemble_sentence(
+                parts,
+                data.UNDERLINE, data.UNDERLINE
+            )
             self.say(f"\N{WHITE RIGHT-POINTING TRIANGLE} {sentence}")
             self.end_game()
 

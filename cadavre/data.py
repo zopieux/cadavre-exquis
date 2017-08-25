@@ -1,5 +1,8 @@
 import string
 
+BOLD = '\x02'
+UNDERLINE = '\x1f'
+
 PIECES = {
     'S': "sujet",
     'Se': "attribut du sujet",
