@@ -289,7 +289,7 @@ class Cadavre:
             parts = [self.pieces[piece] for piece in
                      data.MODES[len(self.pieces)]]
             self.say(f"merci à {', '.join(self.players)} :")
-            sentence = data.assemble_sentence(parts)
+            sentence = data.assemble_sentence(parts, '\x1f', '\x0f')
             self.say(f"\N{WHITE RIGHT-POINTING TRIANGLE} {sentence}")
             self.end_game()
 
