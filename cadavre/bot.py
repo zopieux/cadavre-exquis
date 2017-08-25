@@ -61,7 +61,10 @@ class Cadavre:
 
     def handle_part(self, nick):
         self.pending_players.discard(nick)
-        if self.state == State.game and nick in self.player_pieces:
+        # we are in-game, nick has a role, they did not give their answer
+        if (self.state == State.game
+            and nick in self.player_pieces
+            and self.player_pieces[nick] not in self.pieces):
             self.say(f"gros con de {nick}, on abandonne")
             self.end_game()
 
@@ -243,7 +246,6 @@ class Cadavre:
                 gender = subject_gender if subject else object_gender
                 plurality = subject_plurality if subject else object_plurality
                 example = examples[example_idx(gender, plurality)]
-
 
             tune = ''
             if piece == 'V':
