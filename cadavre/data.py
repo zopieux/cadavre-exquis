@@ -36,7 +36,7 @@ LIGATURES = {
 }
 
 
-def assemble_sentence(parts):
+def assemble_sentence(parts, colors=True):
     """
     Assemble parts and try to keep it French.
 
@@ -87,7 +87,8 @@ def assemble_sentence(parts):
         for (left, right), replace in LIGATURES.items():
             if (result.lower().endswith(" " + left) and
                     part.lower().startswith(right + " ")):
-                result = result[:-len(left) - 1] + " " + replace + " " + part[len(right) + 1:]
+                result = " ".join(
+                    (result[:-len(left) - 1], replace, part[len(right) + 1:]))
                 return True
             if result.lower().endswith(" que") and part[0].lower() in 'aeiou':
                 result = result[:-1] + "'" + part

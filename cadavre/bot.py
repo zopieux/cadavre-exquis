@@ -294,6 +294,7 @@ class Cadavre:
             # voice deferred pending
             voiced = set(self.channel.modes['+'])
             self.mode_nick('+v', *(self.pending_players - voiced))
+            self.mode_nick('-v', *(voiced - self.pending_players))
             self.state = State.queue
             self.say("on rejoue ?")
 
