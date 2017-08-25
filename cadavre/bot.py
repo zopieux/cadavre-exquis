@@ -65,8 +65,8 @@ class Cadavre:
         self.pending_players.discard(nick)
         # we are in-game, nick has a role, they did not give their answer
         if (self.state == State.game
-            and nick in self.player_pieces
-            and self.player_pieces[nick] not in self.pieces):
+                and nick in self.player_pieces
+                and self.player_pieces[nick] not in self.pieces):
             self.say(f"gros con de {nick}, on abandonne")
             self.end_game()
 
@@ -228,9 +228,14 @@ class Cadavre:
         subject_plurality = random.choice(TRUE_FALSE)
         object_plurality = random.choice(TRUE_FALSE)
 
-        gender_name = lambda ge: 'masculin' if ge else 'féminin'
-        plurality_name = lambda nb: 'singulier' if nb else 'pluriel'
-        example_idx = lambda gender, plurality: gender * 2 + plurality
+        def gender_name(ge):
+            return "masculin" if ge else "féminin"
+
+        def plurality_name(nb):
+            return "singulier" if nb else "pluriel"
+
+        def example_idx(gender, plurality):
+            return gender * 2 + plurality
 
         self.players = list(self.pending_players)
         random.shuffle(self.players)
@@ -254,11 +259,11 @@ class Cadavre:
 
             tune = ''
             if piece == 'V':
-                tune = (f' conjugué au {gender_name(gender)} à la 3è personne '
-                        f'du {plurality_name(plurality)}')
+                tune = (f" conjugué au {gender_name(gender)} à la 3è personne "
+                        f"du {plurality_name(plurality)}")
             elif piece != 'Cc':
-                tune = (f' accordé au {gender_name(gender)} '
-                        f'{plurality_name(plurality)}')
+                tune = (f" accordé au {gender_name(gender)} "
+                        f"{plurality_name(plurality)}")
 
             msg = (f"donne-moi un {data.PIECES[piece]}{tune} "
                    f"convenant à cette phrase: ")
@@ -288,7 +293,7 @@ class Cadavre:
         def announce_and_end():
             parts = [self.pieces[piece] for piece in
                      data.MODES[len(self.pieces)]]
-            self.say(f"merci à {', '.join(self.players)} :")
+            self.say(f"merci à {', '.join(self.players)}:")
             sentence = data.assemble_sentence(parts, '\x1f', '\x0f')
             self.say(f"\N{WHITE RIGHT-POINTING TRIANGLE} {sentence}")
             self.end_game()
