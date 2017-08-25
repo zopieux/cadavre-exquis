@@ -25,7 +25,7 @@ class Cadavre:
         return cls(old.bot)
 
     def __init__(self, bot):
-        self.channel_name = bot.config.autojoins[0]
+        self.channel_name = irc3.utils.as_list(bot.config.autojoins)[0]
         self.bot = bot
         self.state = None
         self.reset()
