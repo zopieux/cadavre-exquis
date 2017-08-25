@@ -20,6 +20,8 @@ class State(enum.IntEnum):
 
 @irc3.plugin
 class Cadavre:
+    BOLD = '\x02'
+
     @classmethod
     def reload(cls, old):
         return cls(old.bot)
@@ -233,6 +235,8 @@ class Cadavre:
         self.players = list(self.pending_players)
         random.shuffle(self.players)
 
+        messages = []
+        fragments = []
         for player, piece in zip(self.players, data.MODES[len(self.players)]):
             self.player_pieces[player] = piece
 
@@ -248,21 +252,31 @@ class Cadavre:
                 plurality = subject_plurality if subject else object_plurality
                 example = examples[example_idx(gender, plurality)]
 
-            example = f"par exemple “{example}”"
-            msg = f"donne-moi un {data.PIECES[piece]}"
+            tune = ''
             if piece == 'V':
-                msg += (f" conjugué au {gender_name(gender)} à la 3è personne"
-                        f" du {plurality_name(plurality)}, {example} (pour info"
-                        f" ce qui suit est au {gender_name(object_gender)}"
-                        f" {plurality_name(object_plurality)})")
+                tune = (f' conjugué au {gender_name(gender)} à la 3è personne '
+                        f'du {plurality_name(plurality)}')
             elif piece != 'Cc':
-                msg += (f" accordé au {gender_name(gender)}"
-                        f" {plurality_name(plurality)}, {example}")
+                tune = (f' accordé au {gender_name(gender)} '
+                        f'{plurality_name(plurality)}')
 
+            msg = (f"donne-moi un {data.PIECES[piece]}{tune} "
+                   f"convenant à cette phrase: ")
+
+            fragments.append(example)
+            messages.append(msg)
+
+        for i, (player, msg) in enumerate(zip(self.players, messages)):
+            def highlight_part(phrase, index):
+                phrase = phrase[:]
+                phrase[index] = self.BOLD + phrase[index] + self.BOLD
+                return ' '.join(phrase)
+
+            msg += highlight_part(fragments, i)
             self.say(msg, to=player)
 
         people = ", ".join(self.pending_players)
-        msg = f"{people} : c'est parti, lisez vos PV pour savoir quoi m'envoyer"
+        msg = f"{people}: c'est parti, lisez vos PV pour savoir quoi m'envoyer"
         self.start_time = time.monotonic()
         self.say(msg)
         self.state = State.game
