@@ -10,11 +10,11 @@ PIECES = {
 SUBJECT_PIECES = ('S', 'Se', 'V')
 
 EXAMPLES = {
-    'S': ["les sorcières", "la voisine", "les hommes", "le pape"],
-    'Se': ["chamboulées", "toute jaune", "terrifiés", "confiant"],
+    'S': ["les sorcières", "la voisine", "les enfants", "le pape"],
+    'Se': ["chamboulées", "toute jaune", "muets", "confiant"],
     'V': ["sont amusées par", "est émue par", "s'amusent avec", "parle avec"],
-    'C': ["les sorcières", "la voisine", "les hommes", "le pape"],
-    'Ce': ["chamboulées", "toute jaune", "terrifiés", "confiant"],
+    'C': ["des sirènes", "une veuve", "des hommes", "le père Noël"],
+    'Ce': ["muettes", "apeurée", "terrifiés", "inquiet"],
     'Cc': ["près du lampadaire", "la veille de Noël", "sans bouger"],
 }
 
