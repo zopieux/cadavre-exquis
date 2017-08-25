@@ -285,16 +285,17 @@ class Cadavre:
         self.ensure_state(State.game, State.grace_period)
         self.state = State.post_game_cooldown
 
+        # voice deferred pending, unvoice deferred leaving
+        voiced = set(self.channel.modes['+'])
+        self.mode_nick('+v', *(self.pending_players - voiced))
+        self.mode_nick('-v', *(voiced - self.pending_players))
+
         players = self.pending_players.copy()
         self.reset()
         self.pending_players = players
 
         def waiting_room():
             self.ensure_state(State.post_game_cooldown)
-            # voice deferred pending
-            voiced = set(self.channel.modes['+'])
-            self.mode_nick('+v', *(self.pending_players - voiced))
-            self.mode_nick('-v', *(voiced - self.pending_players))
             self.state = State.queue
             self.say("on rejoue ?")
 
