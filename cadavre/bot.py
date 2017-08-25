@@ -127,7 +127,7 @@ class Cadavre:
         kicked = set(args['<nick>'])
         self.pending_players -= kicked
         voiced = set(self.channel.modes['+'])
-        self.mode_nick('-v', *(kicked))  # TODO: *(kicked & voiced)
+        self.mode_nick('-v', *(kicked & voiced))
 
     @command(permission='admin')
     def abort(self, mask, target, args):
@@ -146,15 +146,19 @@ class Cadavre:
 
             %%join
         """
-        if self.state != State.queue:
+        if mask.nick in self.pending_players:
             return
         if len(self.pending_players) == max(data.MODES):
-            return "nan, y'a déjà trop de joueurs"
+            return f"{mask.nick}: nan, y'a déjà trop de joueurs"
         self.pending_players.add(mask.nick)
-        if mask.nick not in self.channel.modes['+']:
-            self.mode_nick('+v', mask.nick)
-        if len(self.pending_players) == max(data.MODES):
-            self.start_game()
+        if self.state == State.queue:
+            if mask.nick not in self.channel.modes['+']:
+                self.mode_nick('+v', mask.nick)
+            if len(self.pending_players) == max(data.MODES):
+                self.start_game()
+        else:
+            # in game, defer +v
+            return f"{mask.nick}: je note pour la prochaine partie"
 
     @command(permission='play')
     def part(self, mask, target, args):
@@ -163,6 +167,9 @@ class Cadavre:
             %%part
         """
         if self.state != State.queue:
+            if mask.nick in self.pending_players:
+                self.pending_players.remove(mask.nick)
+                return f"{mask.nick}: ok bisous"
             return
         self.pending_players.discard(mask.nick)
         if mask.nick in self.channel.modes['+']:
@@ -280,6 +287,9 @@ class Cadavre:
 
         def waiting_room():
             self.ensure_state(State.post_game_cooldown)
+            # voice deferred pending
+            voiced = set(self.channel.modes['+'])
+            self.mode_nick('+v', *(self.pending_players - voiced))
             self.state = State.queue
             self.say("on rejoue ?")
 
