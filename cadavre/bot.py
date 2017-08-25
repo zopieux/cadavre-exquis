@@ -35,6 +35,7 @@ class Cadavre:
 
     def reset(self):
         self.pending_players = set()
+        self.subscribed_players = set()
         self.player_pieces = {}
         self.players = []
         self.pieces = {}
@@ -217,6 +218,38 @@ class Cadavre:
         if nick in missing:
             msg += f" (oui, surtout toi, con de {nick})"
         self.say(msg)
+
+    @command(permission='play')
+    def sub(self, mask, target, args):
+        """Subscribe to %%summon notifications
+
+            %%sub
+
+        """
+        if mask.nick not in self.subscribed_players:
+            self.subscribed_players.add(mask.nick)
+
+    @command(permission='play')
+    def unsub(self, mask, target, args):
+        """Unsubscribe to %%summon notifications
+
+            %%unsub
+
+        """
+        if mask.nick in self.subscribed_players:
+            self.subscribed_players.remove(mask.nick)
+
+    @command(permission='play')
+    def summon(self, mask, target, args):
+        """Summon players that have used %%sub
+
+            %%summon
+        """
+        nicks = self.subscribed_players - {mask.nick}
+        if not nicks:
+            return
+
+        return f"allô {', '.join(nicks)}, on joue ?"
 
     def start_game(self):
         self.ensure_state(State.queue)
