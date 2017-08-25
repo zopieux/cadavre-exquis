@@ -75,9 +75,6 @@ class Cadavre:
         if self.state != State.wait_for_names:
             return
         self.pending_players = set(self.channel.modes['+'])
-        if self.pending_players:
-            self.say(f"hey {', '.join(self.pending_players)}, "
-                     f"vous êtes dans la prochaine partie")
         self.state = State.queue
 
     @irc3.event(irc3.rfc.PART)
