@@ -156,7 +156,7 @@ class Cadavre:
         if len(self.pending_players) == max(data.MODES):
             return f"{mask.nick}: nan, y'a déjà trop de joueurs"
         self.pending_players.add(mask.nick)
-        if self.state == State.queue:
+        if self.state in (State.queue, State.post_game_cooldown):
             if mask.nick not in self.channel.modes['+']:
                 self.mode_nick('+v', mask.nick)
             if len(self.pending_players) == max(data.MODES):
@@ -171,7 +171,7 @@ class Cadavre:
 
             %%part
         """
-        if self.state != State.queue:
+        if self.state not in (State.queue, State.post_game_cooldown):
             if mask.nick in self.pending_players:
                 self.pending_players.remove(mask.nick)
                 return f"{mask.nick}: ok bisous"
