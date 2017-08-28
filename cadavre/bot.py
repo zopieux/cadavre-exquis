@@ -145,7 +145,7 @@ class Cadavre:
         self.say("partie avortée (noraj thizanne)")
         self.end_game()
 
-    @command(permission='play')
+    @command(permission='play', aliases=['play'])
     def join(self, mask, target, args):
         """Join the waiting room for the next game
 
@@ -165,7 +165,7 @@ class Cadavre:
             # in game, defer +v
             return f"{mask.nick}: je note pour la prochaine partie"
 
-    @command(permission='play')
+    @command(permission='play', aliases=['unplay'])
     def part(self, mask, target, args):
         """Exit from the waiting room
 
