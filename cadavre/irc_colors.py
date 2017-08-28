@@ -23,7 +23,7 @@ class IRCColors:
     Note that those are case insensitive and that underscores are ignored.
     """
 
-    COLOR_RE = re.compile(r'\x03\d{0,2}(?:,\d{1,2})?')
+    COLOR_RE = re.compile(r'\x03\d{0,2}(?:,\d{1,2})?', re.ASCII)
 
     COLOR_NAMES = dict(
         white='00',
