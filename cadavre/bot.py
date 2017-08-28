@@ -50,6 +50,7 @@ class Cadavre:
         self.bot = bot
         self.state = None
         self.last_game = None
+        self.subscribed_players = set()
         self.reset()
 
     def connection_made(self):
@@ -57,7 +58,6 @@ class Cadavre:
 
     def reset(self):
         self.pending_players = set()
-        self.subscribed_players = set()
         self.player_pieces = {}
         self.players = []
         self.pieces = {}
