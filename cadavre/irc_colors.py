@@ -1,3 +1,5 @@
+import re
+
 __all__ = ['IRCColors']
 
 
@@ -20,6 +22,8 @@ class IRCColors:
 
     Note that those are case insensitive and that underscores are ignored.
     """
+
+    COLOR_RE = re.compile(r'\x03\d{0,2}(?:,\d{1,2})?')
 
     COLOR_NAMES = dict(
         white='00',
@@ -103,6 +107,12 @@ class IRCColors:
             attrs += self.CONTROL_CODES['color'] + ''.join(colors)
 
         return self.Tag(attrs, end)
+
+    def strip(self, text):
+        text = self.COLOR_RE.sub('', text)
+        for code in self.CONTROL_CODES.values():
+            text = text.replace(code, '')
+        return text
 
 
 IRCColors = IRCColors()

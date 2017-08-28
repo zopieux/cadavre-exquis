@@ -167,6 +167,10 @@ class Cadavre:
 
     @irc3.event(irc3.rfc.PRIVMSG)
     def on_private_message(self, mask, event, target, data):
+        data = colors.strip(data).strip()
+
+        if data.startswith(self.bot.config.get('cmd', '!')):
+            return
         if self.state not in State.game_states():
             return
         if target != self.bot.nick:
