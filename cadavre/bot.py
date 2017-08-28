@@ -15,8 +15,16 @@ class State(enum.IntEnum):
     wait_for_names = enum.auto()
     queue = enum.auto()
     game = enum.auto()
-    grace_period = enum.auto()
+    game_grace_period = enum.auto()
     post_game_cooldown = enum.auto()
+
+    @classmethod
+    def game_states(cls):
+        return (cls.game, cls.game_grace_period)
+
+    @classmethod
+    def non_game_states(cls):
+        return (cls.queue, cls.post_game_cooldown)
 
 
 @irc3.plugin
@@ -113,7 +121,7 @@ class Cadavre:
 
     @irc3.event(irc3.rfc.PRIVMSG)
     def on_private_message(self, mask, event, target, data):
-        if self.state not in (State.game, State.grace_period):
+        if self.state not in State.game_states():
             return
         if target != self.bot.nick:
             return
@@ -198,12 +206,12 @@ class Cadavre:
         if len(self.pending_players) == max(data.MODES):
             return f"{mask.nick}: nan, y'a déjà trop de joueurs"
         self.pending_players.add(mask.nick)
-        if self.state in (State.queue, State.post_game_cooldown):
+        if self.state in State.non_game_states():
             if mask.nick not in self.channel.modes['+']:
                 self.mode_nick('+v', mask.nick)
             if len(self.pending_players) == max(data.MODES):
                 self.start_game()
-        else:
+        elif self.state in State.game_states():
             # in game, defer +v
             return f"{mask.nick}: je note pour la prochaine partie"
 
@@ -213,7 +221,7 @@ class Cadavre:
 
             %%part
         """
-        if self.state not in (State.queue, State.post_game_cooldown):
+        if self.state in State.game_states():
             if mask.nick in self.pending_players:
                 self.pending_players.remove(mask.nick)
                 return f"{mask.nick}: ok bisous"
@@ -376,11 +384,11 @@ class Cadavre:
 
     def enter_grace_period(self):
         self.ensure_state(State.game)
-        self.state = State.grace_period
+        self.state = State.game_grace_period
         self.bot.loop.call_later(4, self.announce_game_end)
 
     def announce_game_end(self):
-        self.ensure_state(State.grace_period)
+        self.ensure_state(State.game_grace_period)
         parts = [self.pieces[piece] for piece in data.MODES[len(self.pieces)]]
         self.last_game = (list(self.players), list(parts))
         self.say(f"merci à {', '.join(self.players)}:")
@@ -389,7 +397,7 @@ class Cadavre:
         self.end_game()
 
     def end_game(self):
-        self.ensure_state(State.game, State.grace_period)
+        self.ensure_state(*State.game_states())
         self.state = State.post_game_cooldown
 
         # voice deferred pending, unvoice deferred leaving
