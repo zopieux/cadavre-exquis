@@ -80,10 +80,12 @@ class Cadavre:
         for attr, value in old.__dict__.items():
             if attr == 'bot':
                 continue
-            setattr(self, attr, copy.copy(value))
+            setattr(self, attr, copy.deepcopy(value))
 
         if self.state == State.post_game_cooldown:
             self.waiting_room()
+        elif self.state == State.game_grace_period:
+            self.announce_game_end()
 
         return self
 
