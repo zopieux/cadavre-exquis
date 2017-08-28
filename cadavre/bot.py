@@ -243,12 +243,12 @@ class Cadavre:
 
     @command(permission='play', aliases=['play'])
     def join(self, mask, target, args):
-        """Join the waiting room for the next game(s)
-
-            <time> can be either the number of games you wish to play or
-            a time unit such as '10m' or '1h'
+        """Join the waiting room for the next game(s).
 
             %%join [<time>]
+
+            <time> can be either the number of games you wish to play or
+            a time unit such as '10m' or '1h'.
         """
         if args['<time>']:
             self.player_times[mask.nick] = PlayTime(args['<time>'])
