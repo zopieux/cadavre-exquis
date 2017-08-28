@@ -461,19 +461,19 @@ class Cadavre:
 
     def end_game(self):
         self.ensure_state(*State.game_states())
+
+        for player in set(self.players):
+            play_time = self.player_times.get(player)
+            if play_time:
+                play_time.count_game()
+
+        self.check_times()
         self.state = State.post_game_cooldown
 
         # voice deferred pending, unvoice deferred leaving
         voiced = set(self.channel.modes['+'])
         self.mode_nick('+v', *(self.pending_players - voiced))
         self.mode_nick('-v', *(voiced - self.pending_players))
-
-        for player in set(self.players) - (voiced - self.pending_players):
-            play_time = self.player_times.get(player)
-            if play_time:
-                play_time.count_game()
-
-        self.check_times()
 
         players = self.pending_players.copy()
         self.reset()
