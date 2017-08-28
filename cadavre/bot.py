@@ -1,6 +1,7 @@
 import enum
 import random
 import time
+import copy
 
 import irc3
 from irc3.plugins.command import command
@@ -27,7 +28,14 @@ class Cadavre:
 
     @classmethod
     def reload(cls, old):
-        return cls(old.bot)
+        self = cls(old.bot)
+
+        for attr, value in old.__dict__.items():
+            if attr == 'bot':
+                continue
+            setattr(self, attr, copy.copy(value))
+
+        return self
 
     def __init__(self, bot):
         self.channel_name = irc3.utils.as_list(bot.config.autojoins)[0]
@@ -147,6 +155,37 @@ class Cadavre:
             return
         self.say("partie avortée (noraj thizanne)")
         self.end_game()
+
+    @command(permission='admin')
+    def dump(self, mask, target, args):
+        """Dump the internal game state
+
+            %%dump
+        """
+        for name, val in self.__dict__.items():
+            self.say(f'{name} = {val!r}', to=mask.nick)
+
+    @command(name='reset', permission='admin')
+    def reset_cmd(self, mask, target, args):
+        """Reset the game state
+
+            %%reset
+        """
+        self.reset()
+
+    @command(permission='admin', use_shlex=False)
+    def exec(self, mask, target, args):
+        """Exec python code
+
+            %%exec <code>...
+        """
+        try:
+            code = ' '.join(args['<code>'])
+            res = eval(code)
+            if res is not None:
+                return str(res)
+        except Exception as ex:
+            return f'{data.BOLD}Exception:{data.BOLD} {ex}'
 
     @command(permission='play', aliases=['play'])
     def join(self, mask, target, args):
