@@ -10,6 +10,7 @@ from irc3.plugins.cron import cron
 from irc3.utils import IrcString
 
 from . import data
+from .irc_colors import IRCColors as colors
 
 TRUE_FALSE = (True, False)
 
@@ -239,7 +240,7 @@ class Cadavre:
             if res is not None:
                 return str(res)
         except Exception as ex:
-            return f'{data.BOLD}Exception:{data.BOLD} {ex}'
+            return colors.bold_red('Exception: ') + str(ex)
 
     @command(permission='play', aliases=['play'])
     def join(self, mask, target, args):
@@ -369,7 +370,7 @@ class Cadavre:
 
         players, parts = self.last_game
         sentence = data.assemble_sentence(
-            parts, data.UNDERLINE, data.UNDERLINE)
+            parts, colors.underline, data.UNDERLINE)
         self.say(f"dernière phrase par {', '.join(players)}:")
         self.say(f"\N{WHITE RIGHT-POINTING TRIANGLE} {sentence}")
 
@@ -433,7 +434,7 @@ class Cadavre:
         for i, (player, msg) in enumerate(zip(self.players, messages)):
             def highlight_part(phrase, index):
                 phrase = phrase[:]
-                phrase[index] = data.BOLD + phrase[index] + data.BOLD
+                phrase[index] = colors.bold_green(phrase[index])
                 return ' '.join(phrase)
 
             msg += highlight_part(fragments, i)
