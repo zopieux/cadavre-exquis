@@ -180,6 +180,7 @@ class Cadavre:
             %%reset
         """
         self.reset()
+        self.state = State.queue
 
     @command(permission='admin', use_shlex=False)
     def exec(self, mask, target, args):
