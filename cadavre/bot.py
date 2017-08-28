@@ -312,7 +312,8 @@ class Cadavre:
             return "je n'ai rien dans le sac"
 
         players, parts = self.last_game
-        sentence = data.assemble_sentence(parts, data.UNDERLINE, data.UNDERLINE)
+        sentence = data.assemble_sentence(
+            parts, data.UNDERLINE, data.UNDERLINE)
         self.say(f"dernière phrase par {', '.join(players)}:")
         self.say(f"\N{WHITE RIGHT-POINTING TRIANGLE} {sentence}")
 

@@ -95,11 +95,15 @@ def assemble_sentence(parts, mark_begin='', mark_end=''):
         for (left, right), replace in LIGATURES.items():
             if (result.rstrip(me).lower().endswith(" " + left) and
                     part.lower().startswith(right + " ")):
-                result = " ".join(
-                    (result.rstrip(me)[:-len(left) - 1] + me, mb + replace, part[len(right) + 1:] + me))
+                result = " ".join((
+                    result.rstrip(me)[:-len(left) - 1] + me,
+                    mb + replace,
+                    part[len(right) + 1:] + me))
                 return True
-            if result.rstrip(me).lower().endswith(" que") and part[0].lower() in "aeiou":
-                result = result.rstrip(string.whitespace + me)[:-4] + me + " " + mb + "qu'" + part + me
+            if (result.rstrip(me).lower().endswith(" que")
+                    and part[0].lower() in "aeiou"):
+                result = (result.rstrip(string.whitespace + me)[:-4] + me +
+                          " " + mb + "qu'" + part + me)
                 return True
         return False
 
@@ -110,7 +114,8 @@ def assemble_sentence(parts, mark_begin='', mark_end=''):
         if i == 0:
             result += mb + part[0].upper() + part[1:] + me
         elif result.rstrip(me).endswith(",") and part.startswith(","):
-            result = result.rstrip(me + ",") + me + ", " + mb + part.lstrip(string.whitespace + ",") + me
+            result = (result.rstrip(me + ",") + me + ", " +
+                      mb + part.lstrip(string.whitespace + ",") + me)
         elif ligature(part):
             continue
         elif not part.startswith(","):
