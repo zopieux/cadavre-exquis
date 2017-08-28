@@ -33,6 +33,7 @@ class Cadavre:
         self.channel_name = irc3.utils.as_list(bot.config.autojoins)[0]
         self.bot = bot
         self.state = None
+        self.last_game = None
         self.reset()
 
     def connection_made(self):
@@ -68,6 +69,8 @@ class Cadavre:
     def handle_part(self, nick):
         self.pending_players.discard(nick)
         # we are in-game, nick has a role, they did not give their answer
+        # TODO: fill-in missing pieces instead
+        # or use some non-playing pending player
         if (self.state == State.game
                 and nick in self.player_pieces
                 and self.player_pieces[nick] not in self.pieces):
@@ -252,6 +255,20 @@ class Cadavre:
 
         return f"allô {', '.join(nicks)}, on joue ?"
 
+    @command(permission='play')
+    def reveal(self, mask, target, args):
+        """Reveal last sentence piece boundaries
+
+            %%reveal
+        """
+        if not self.last_game:
+            return "je n'ai rien dans le sac"
+
+        players, parts = self.last_game
+        sentence = data.assemble_sentence(parts, data.UNDERLINE, data.UNDERLINE)
+        self.say(f"dernière phrase par {', '.join(players)}:")
+        self.say(f"\N{WHITE RIGHT-POINTING TRIANGLE} {sentence}")
+
     def start_game(self):
         self.ensure_state(State.queue)
 
@@ -321,19 +338,16 @@ class Cadavre:
     def enter_grace_period(self):
         self.ensure_state(State.game)
         self.state = State.grace_period
+        self.bot.loop.call_later(4, self.announce_game_end)
 
-        def announce_and_end():
-            parts = [self.pieces[piece] for piece in
-                     data.MODES[len(self.pieces)]]
-            self.say(f"merci à {', '.join(self.players)}:")
-            sentence = data.assemble_sentence(
-                parts,
-                data.UNDERLINE, data.UNDERLINE
-            )
-            self.say(f"\N{WHITE RIGHT-POINTING TRIANGLE} {sentence}")
-            self.end_game()
-
-        self.bot.loop.call_later(4, announce_and_end)
+    def announce_game_end(self):
+        self.ensure_state(State.grace_period)
+        parts = [self.pieces[piece] for piece in data.MODES[len(self.pieces)]]
+        self.last_game = (list(self.players), list(parts))
+        self.say(f"merci à {', '.join(self.players)}:")
+        sentence = data.assemble_sentence(parts)
+        self.say(f"\N{WHITE RIGHT-POINTING TRIANGLE} {sentence}")
+        self.end_game()
 
     def end_game(self):
         self.ensure_state(State.game, State.grace_period)
