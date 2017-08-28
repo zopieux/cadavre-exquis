@@ -1,10 +1,13 @@
+import re
 import enum
-import random
 import time
 import copy
+import random
 
 import irc3
 from irc3.plugins.command import command
+from irc3.plugins.cron import cron
+from irc3.utils import IrcString
 
 from . import data
 
@@ -27,6 +30,42 @@ class State(enum.IntEnum):
         return (cls.queue, cls.post_game_cooldown)
 
 
+class PlayTime:
+    RE_TIME = re.compile(r'(\d*(?:\.\d+)?)([smh]?)')
+    UNITS = dict(s=1, m=60, h=3600)
+
+    def __init__(self, value):
+        m = self.RE_TIME.match(value)
+
+        if not m:
+            raise ValueError('Invalid time format')
+
+        self.time_unit = m.group(2)
+        if self.time_unit:
+            self.deadline = time.time() + (
+                                float(m.group(1)) * self.UNITS[self.time_unit])
+        else:
+            self.count = int(m.group(1))
+
+    def count_game(self):
+        if not self.time_unit:
+            self.count -= 1
+
+    def check_time(self):
+        "Returns True if the player is allowed to play now"
+
+        if self.time_unit:
+            return time.time() < self.deadline
+        else:
+            return self.count > 0
+
+    def __repr__(self):
+        if not self.time_unit:
+            return f'PlayTime(count={self.count})'
+        else:
+            return f'PlayTime(deadline={self.deadline})'
+
+
 @irc3.plugin
 class Cadavre:
     requires = [
@@ -43,6 +82,9 @@ class Cadavre:
                 continue
             setattr(self, attr, copy.copy(value))
 
+        if self.state == State.post_game_cooldown:
+            self.waiting_room()
+
         return self
 
     def __init__(self, bot):
@@ -51,6 +93,7 @@ class Cadavre:
         self.state = None
         self.last_game = None
         self.subscribed_players = set()
+        self.player_times = {}
         self.reset()
 
     def connection_made(self):
@@ -198,15 +241,25 @@ class Cadavre:
 
     @command(permission='play', aliases=['play'])
     def join(self, mask, target, args):
-        """Join the waiting room for the next game
+        """Join the waiting room for the next game(s)
 
-            %%join
+            <time> can be either the number of games you wish to play or
+            a time unit such as '10m' or '1h'
+
+            %%join [<time>]
         """
+        if args['<time>']:
+            self.player_times[mask.nick] = PlayTime(args['<time>'])
+        elif mask.nick in self.player_times:
+            del self.player_times[mask.nick]
+
         if mask.nick in self.pending_players:
             return
         if len(self.pending_players) == max(data.MODES):
             return f"{mask.nick}: nan, y'a déjà trop de joueurs"
+
         self.pending_players.add(mask.nick)
+
         if self.state in State.non_game_states():
             if mask.nick not in self.channel.modes['+']:
                 self.mode_nick('+v', mask.nick)
@@ -318,6 +371,12 @@ class Cadavre:
         self.say(f"dernière phrase par {', '.join(players)}:")
         self.say(f"\N{WHITE RIGHT-POINTING TRIANGLE} {sentence}")
 
+    @cron('* * * * *')
+    def check_times(self):
+        for player, play_time in self.player_times.items():
+            if not play_time.check_time():
+                self.part(IrcString(player), None, {})
+
     def start_game(self):
         self.ensure_state(State.queue)
 
@@ -407,13 +466,21 @@ class Cadavre:
         self.mode_nick('+v', *(self.pending_players - voiced))
         self.mode_nick('-v', *(voiced - self.pending_players))
 
+        for player in set(self.players) - (voiced - self.pending_players):
+            play_time = self.player_times.get(player)
+            if play_time:
+                play_time.count_game()
+
+        self.check_times()
+
         players = self.pending_players.copy()
         self.reset()
         self.pending_players = players
 
-        def waiting_room():
-            self.ensure_state(State.post_game_cooldown)
-            self.state = State.queue
-            self.say("on rejoue ?")
+        self.bot.loop.call_later(6, self.waiting_room)
 
-        self.bot.loop.call_later(6, waiting_room)
+    def waiting_room(self):
+        self.ensure_state(State.post_game_cooldown)
+        self.state = State.queue
+        self.say("on rejoue ?")
+

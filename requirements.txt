@@ -1,0 +1,2 @@
+-e  git+https://github.com/mickael9/irc3.git#egg=irc3
+aiocron
