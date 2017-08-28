@@ -1,7 +1,7 @@
 from irc3.plugins.command import command
 
 
-@command(permission='admin')
+@command(permission='admin', use_shlex=False, options_first=True)
 def dispatch(bot, mask, target, args):
     """Fake some input
         %%dispatch <data>...

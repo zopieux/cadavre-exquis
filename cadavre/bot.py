@@ -225,7 +225,7 @@ class Cadavre:
         self.reset()
         self.state = State.queue
 
-    @command(permission='admin', use_shlex=False)
+    @command(permission='admin', use_shlex=False, options_first=True)
     def exec(self, mask, target, args):
         """Exec python code
 
