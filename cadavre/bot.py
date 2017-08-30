@@ -32,7 +32,7 @@ class State(enum.IntEnum):
 
 
 class PlayTime:
-    RE_TIME = re.compile(r'(\d*(?:\.\d+)?)([smh]?)')
+    RE_TIME = re.compile(r'^(\d*(?:\.\d+)?)([smh]?)$', re.ASCII)
     UNITS = dict(s=1, m=60, h=3600)
 
     def __init__(self, value):
